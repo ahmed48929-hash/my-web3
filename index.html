@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>مختبر تفاعلي: القوّة والكتلة والتسارع</title>
+<style>
+:root{
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  --bg:#E7EBF5;--surface:#FFFFFF;--soft:#F0F3FA;--ink:#13203A;--muted:#58637E;--line:#CDD5E8;
+  --blue:#1B5FB0;--on-blue:#FFFFFF;--amber:#B45F06;--green:#0B7F5B;--red:#C23B3B;
+  --wall:#EEF2FA;--floor:#B9C3D8;--wood:#D2A468;--wood2:#A8793F;--alu:#C3CBD9;--alu2:#8E99AE;
+  --steel:#8793A7;--steel2:#566176;--card:#F3C32A;--foam:#E9B872;--gate:#2D3A55;
+  --font:"IBM Plex Sans Arabic","Segoe UI",Tahoma,Arial,sans-serif;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0C1322;--surface:#16203A;--soft:#1D294A;--ink:#E8EDF9;--muted:#9DA9C6;--line:#2B3A5E;
+    --blue:#6CA8FF;--on-blue:#0C1322;--amber:#F2A93B;--green:#3FCB9A;--red:#FF7F7F;
+    --wall:#101A31;--floor:#24304F;--wood:#8B6535;--wood2:#6B4C26;--alu:#7C88A0;--alu2:#5A6580;
+    --steel:#A3AEC3;--steel2:#6D7993;--card:#F3C32A;--foam:#B98A4B;--gate:#3C4B72;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0C1322;--surface:#16203A;--soft:#1D294A;--ink:#E8EDF9;--muted:#9DA9C6;--line:#2B3A5E;
+  --blue:#6CA8FF;--on-blue:#0C1322;--amber:#F2A93B;--green:#3FCB9A;--red:#FF7F7F;
+  --wall:#101A31;--floor:#24304F;--wood:#8B6535;--wood2:#6B4C26;--alu:#7C88A0;--alu2:#5A6580;
+  --steel:#A3AEC3;--steel2:#6D7993;--card:#F3C32A;--foam:#B98A4B;--gate:#3C4B72;
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px);-webkit-text-size-adjust:100%}
+*,*::before,*::after{box-sizing:inherit}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font);font-size:16px;line-height:1.65}
+button,input,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+.wrap{max-width:920px;margin:0 auto;padding:16px 14px 40px}
+sub{font-size:.75em;line-height:0}
+
+.hd{padding:8px 2px 14px}
+.badge{display:inline-block;background:var(--blue);color:var(--on-blue);font-weight:700;padding:3px 14px;border-radius:0 0 12px 12px;margin-inline-start:0;font-size:15px}
+h1{font-size:clamp(22px,6vw,32px);line-height:1.3;margin:10px 0 6px;font-weight:700}
+.lead{margin:0;color:var(--muted);max-width:60ch}
+h2{font-size:19px;margin:0 0 6px;font-weight:700;line-height:1.4}
+h3{font-size:16px;margin:0 0 6px;font-weight:600}
+p{margin:0 0 10px}
+
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px}
+.stage{overflow:hidden;margin-bottom:12px}
+.scene-box{background:var(--wall)}
+#scene{display:block;width:100%;aspect-ratio:800/460;height:auto}
+.stk{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;padding-bottom:8px;background:var(--bg)}
+.stk.free{position:static}
+.stk .stage{margin-bottom:0}
+.live{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--line)}
+.live div{padding:8px 10px;text-align:center;border-inline-start:1px solid var(--line)}
+.live div:first-child{border-inline-start:0}
+.live span{display:block;font-size:12.5px;color:var(--muted)}
+.live b{font-size:19px;font-variant-numeric:tabular-nums;direction:ltr;display:inline-block}
+.quad{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;padding:10px;border-top:1px solid var(--line);background:var(--soft)}
+.chip{background:var(--surface);border:1px solid var(--line);border-inline-start:5px solid var(--ink);border-radius:8px;padding:6px 10px}
+.chip span{display:block;font-size:12.5px;color:var(--muted);line-height:1.4}
+.chip b{font-size:18px;font-variant-numeric:tabular-nums}
+.chip small{font-size:13px;color:var(--muted);font-weight:400}
+.chip.c1{border-inline-start-color:var(--blue)}
+.chip.c2,.chip.c3{border-inline-start-color:var(--amber)}
+.flags{padding:0 10px 10px;background:var(--soft);display:flex;gap:6px;flex-wrap:wrap}
+.flag{font-size:12.5px;border-radius:999px;padding:1px 10px;border:1px solid var(--line);background:var(--surface);color:var(--muted)}
+.flag.on{border-color:var(--amber);color:var(--amber)}
+.flags:empty{display:none}
+
+.ft{margin:18px 0 0;text-align:center;font-size:11.5px;color:var(--muted);line-height:1.5}
+.ft span{direction:ltr;unicode-bidi:isolate;display:inline-block}
+.tabs{display:flex;gap:6px;overflow-x:auto;padding:2px 0 10px;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex:1 0 auto;min-height:46px;padding:6px 14px;border:1px solid var(--line);background:var(--surface);border-radius:10px;font-weight:600;font-size:14.5px;white-space:nowrap}
+.tab[aria-selected="true"]{background:var(--blue);color:var(--on-blue);border-color:var(--blue)}
+.tab:disabled{opacity:.55}
+
+.panel{padding:14px}
+.panel + .panel{margin-top:0}
+.sec{padding-bottom:14px;margin-bottom:14px;border-bottom:1px solid var(--line)}
+.sec:last-child{border-bottom:0;margin-bottom:0;padding-bottom:0}
+.muted{color:var(--muted)}
+.small{font-size:14px}
+.note{font-size:14px;color:var(--muted);margin:6px 0 0}
+
+.methods{display:grid;gap:8px}
+.method{display:block;border:2px solid var(--line);border-radius:10px;padding:10px 12px;cursor:pointer;background:var(--surface)}
+.method input{position:absolute;opacity:0;pointer-events:none}
+.method:has(input:checked){border-color:var(--blue);background:var(--soft)}
+.method:has(input:focus-visible){outline:3px solid var(--blue);outline-offset:2px}
+.method b{display:block}
+.method .eq{direction:ltr;text-align:right;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13.5px;color:var(--blue);margin-top:2px}
+.method small{display:block;color:var(--muted);font-size:13.5px;line-height:1.5}
+
+.checks{display:grid;gap:8px}
+.check{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border:1px solid var(--line);border-radius:10px;cursor:pointer;background:var(--surface)}
+.check input{width:22px;height:22px;margin:2px 0 0;flex:none;accent-color:var(--blue)}
+.check b{display:block;font-size:15px}
+.check small{display:block;color:var(--muted);font-size:13.5px;line-height:1.5}
+
+.sw{display:flex;align-items:center;gap:12px;justify-content:space-between;padding:8px 0}
+.sw label{flex:1}
+.sw b{display:block;font-size:15px}
+.sw small{color:var(--muted);font-size:13.5px;display:block;line-height:1.5}
+.sw input{appearance:none;-webkit-appearance:none;width:50px;height:30px;border-radius:999px;background:var(--line);position:relative;flex:none;cursor:pointer;border:0;transition:background .15s}
+.sw input::after{content:"";position:absolute;top:3px;inset-inline-start:3px;width:24px;height:24px;border-radius:50%;background:#fff;transition:inset-inline-start .15s}
+.sw input:checked{background:var(--green)}
+.sw input:checked::after{inset-inline-start:23px}
+
+.btn{min-height:46px;padding:8px 18px;border-radius:10px;border:1px solid var(--line);background:var(--surface);font-weight:600}
+.btn.pri{background:var(--blue);border-color:var(--blue);color:var(--on-blue)}
+.btn.go{background:var(--green);border-color:var(--green);color:#fff;font-size:17px;padding-inline:26px}
+:root[data-theme="dark"] .btn.go{color:#06231a}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .btn.go{color:#06231a}}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+
+.status{display:flex;gap:8px;align-items:center;padding:8px 12px;border-radius:10px;font-size:14.5px;background:var(--soft);border:1px solid var(--line)}
+.status.ok{border-color:var(--green);color:var(--green)}
+.status.no{border-color:var(--amber);color:var(--amber)}
+
+.vars{display:grid;gap:6px;margin:8px 0}
+.vars div{display:flex;gap:10px;align-items:baseline;font-size:14.5px}
+.vars span{flex:none;min-width:92px;font-size:12.5px;padding:0 8px;border-radius:999px;text-align:center;border:1px solid var(--line);color:var(--muted)}
+details{margin-top:8px}
+summary{cursor:pointer;font-weight:600;font-size:14.5px;color:var(--blue);min-height:32px}
+
+.stepper{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.stepper > span{flex:1 1 150px;font-weight:600}
+.stepper button{width:48px;height:48px;border-radius:12px;border:1px solid var(--line);background:var(--surface);font-size:24px;font-weight:700;line-height:1}
+.stepper output{min-width:36px;text-align:center;font-size:24px;font-weight:700;font-variant-numeric:tabular-nums}
+
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.seg button{border:0;background:var(--surface);min-height:40px;padding:4px 14px;font-weight:600;border-inline-start:1px solid var(--line)}
+.seg button:first-child{border-inline-start:0}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--surface)}
+
+#msg{min-height:24px;font-size:14.5px;color:var(--amber);margin:8px 0 0}
+.res{background:var(--soft);border:1px solid var(--line);border-radius:12px;padding:12px;margin-top:10px}
+.res.empty{color:var(--muted);font-size:14.5px}
+.rg{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:8px}
+.rg div{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:6px 10px}
+.rg span{display:block;font-size:12.5px;color:var(--muted)}
+.rg b{font-variant-numeric:tabular-nums;direction:ltr;display:inline-block}
+.eqline{direction:ltr;text-align:center;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13.5px;color:var(--muted);overflow-x:auto;white-space:nowrap}
+.big{text-align:center;margin:6px 0 2px}
+.big b{font-size:34px;color:var(--green);font-variant-numeric:tabular-nums}
+.big span{color:var(--muted)}
+#vt{display:block;width:100%;margin-bottom:8px}
+
+.tw{overflow-x:auto;border:1px solid var(--line);border-radius:10px}
+table{width:100%;border-collapse:collapse;font-size:13.5px;font-variant-numeric:tabular-nums}
+th,td{padding:7px 8px;text-align:center;border-bottom:1px solid var(--line);white-space:nowrap}
+th{background:var(--soft);font-weight:600;font-size:12.5px}
+tr:last-child td{border-bottom:0}
+td.bad{color:var(--amber);font-weight:600}
+td button{border:0;background:none;color:var(--muted);font-size:16px;min-width:32px;min-height:32px}
+.empty-t{padding:14px;text-align:center;color:var(--muted);font-size:14.5px}
+#graph{display:block;width:100%}
+.gw{border:1px solid var(--line);border-radius:10px;padding:6px;background:var(--surface)}
+.fit{background:var(--soft);border-radius:10px;padding:10px 12px;font-size:14.5px;margin-top:8px}
+.fit b{font-variant-numeric:tabular-nums}
+
+.law{text-align:center;padding:14px;border-radius:12px;background:var(--soft);border:1px solid var(--line);margin:8px 0}
+.law b{font-size:24px;direction:ltr;display:inline-block}
+.q{margin-bottom:14px}
+.q p{font-weight:600;margin-bottom:6px}
+.opt{display:block;width:100%;text-align:start;min-height:46px;padding:8px 12px;margin-bottom:6px;border:1.5px solid var(--line);border-radius:10px;background:var(--surface)}
+.opt.ok{border-color:var(--green);background:var(--soft)}
+.opt.bad{border-color:var(--red)}
+.fb{font-size:14.5px;color:var(--muted);font-weight:400!important;margin:4px 0 0}
+
+@media (min-width:640px){
+  .quad{grid-template-columns:repeat(4,1fr)}
+  .methods{grid-template-columns:repeat(3,1fr)}
+  .rg{grid-template-columns:repeat(4,1fr)}
+  .panel{padding:18px}
+}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <header class="hd">
+    <div class="badge">نشاط ٤-٢</div>
+    <h1>العلاقة بين القوّة والكتلة والتسارع</h1>
+    <p class="lead">عربة مختبر على مسار أفقي يشدّها خيط يمرّ فوق بكرة إلى أثقال معلّقة. جهّز القياس، غيّر الكتلة ثم القوّة، وحلّل بياناتك.</p>
+  </header>
+
+  <div class="stk" id="stk"><section class="card stage" aria-label="منطقة التجربة">
+    <div class="scene-box">
+      <canvas id="scene" role="img" aria-label="رسم جانبي لعربة على مسار أفقي مرتبطة بخيط يمرّ فوق بكرة إلى أثقال معلّقة، مع بوابات ضوئية"></canvas>
+    </div>
+    <div class="live" aria-live="off">
+      <div><span>الزمن t (s)</span><b id="lt">0.000</b></div>
+      <div><span>الإزاحة x (m)</span><b id="lx">0.000</b></div>
+      <div><span>السرعة v (m/s)</span><b id="lv">0.000</b></div>
+    </div>
+    </section></div>
+  <section class="card stage" style="margin-bottom:12px">
+    <div class="quad">
+      <div class="chip c1"><span>كتلة العربة m<sub>1</sub></span><b id="q1">0.50</b> <small>kg</small></div>
+      <div class="chip c2"><span>الكتلة المعلّقة m<sub>2</sub></span><b id="q2">0.15</b> <small>kg</small></div>
+      <div class="chip c3"><span>القوّة F = m<sub>2</sub>g</span><b id="q3">1.47</b> <small>N</small></div>
+      <div class="chip"><span>الكتلة المتسارعة m<sub>1</sub> + m<sub>2</sub></span><b id="q4">0.65</b> <small>kg</small></div>
+    </div>
+    <div class="flags" id="flags"></div>
+  </section>
+
+  <nav class="tabs" role="tablist" aria-label="خطوات النشاط">
+    <button class="tab" role="tab" data-tab="setup" aria-selected="true">١–٢ التجهيز</button>
+    <button class="tab" role="tab" data-tab="A" aria-selected="false">٣ غيّر الكتلة</button>
+    <button class="tab" role="tab" data-tab="B" aria-selected="false">٤ غيّر القوّة</button>
+    <button class="tab" role="tab" data-tab="sum" aria-selected="false">الخلاصة</button>
+  </nav>
+
+  <!-- التجهيز -->
+  <section class="card panel" id="p-setup">
+    <div class="sec">
+      <h2>الخطوة ١: كيف ستقيس التسارع؟</h2>
+      <p class="muted small">ضع العربة على المسار كما في الرسم، ثم اختر طريقة قياس تسارعها.</p>
+      <div class="methods" role="radiogroup" aria-label="طريقة القياس">
+        <label class="method"><input type="radio" name="method" value="two" checked>
+          <b>بوابتان ضوئيتان وبطاقة</b>
+          <span class="eq">a = (v₂ − v₁) / Δt</span>
+          <small>البطاقة عرضها 5.0 cm. تقيس البوابتان سرعتين والزمن بينهما.</small></label>
+        <label class="method"><input type="radio" name="method" value="one">
+          <b>بوابة واحدة وبطاقة</b>
+          <span class="eq">a = v² / 2s</span>
+          <small>تبدأ العربة من السكون، وتقيس السرعة عند مسافة s = 0.50 m.</small></label>
+        <label class="method"><input type="radio" name="method" value="sensor">
+          <b>مستشعر حركة ومسجّل بيانات</b>
+          <span class="eq">a = ميل منحنى (v–t)</span>
+          <small>يسجّل 50 قراءة في الثانية، ويحسب الحاسوب ميل الخط.</small></label>
+      </div>
+    </div>
+
+    <div class="sec">
+      <h2>الخطوة ٢: قيّم الأخطار قبل التشغيل</h2>
+      <p class="muted small">ستتحرك العربة والأثقال بسرعة. أكّد الإجراءات التالية قبل تحرير العربة.</p>
+      <div class="checks">
+        <label class="check"><input type="checkbox" data-chk="0"><span><b>حاجز في نهاية المسار</b><small>يوقف العربة قبل أن تصطدم بالبكرة أو تسقط عن الطاولة.</small></span></label>
+        <label class="check"><input type="checkbox" data-chk="1"><span><b>وسادة أو صندوق رمل تحت الأثقال</b><small>يحمي القدمين والأرضية عند وصول الأثقال إلى الأسفل.</small></span></label>
+        <label class="check"><input type="checkbox" data-chk="2"><span><b>أنا مستعدّ للإمساك بالعربة</b><small>الخيط مربوط جيدًا، وسأمسك العربة عندما تصل إلى نهاية المسار.</small></span></label>
+      </div>
+    </div>
+
+    <div class="sec">
+      <h2>خيارات الواقعية</h2>
+      <div class="sw"><label for="fr"><b>احتكاك المسار</b><small>قوّة صغيرة تعاكس الحركة (μ = 0.03). قد تجعل بعض النتائج غير متوقّعة.</small></label><input type="checkbox" id="fr"></div>
+      <div class="sw"><label for="nz"><b>ضوضاء القياس</b><small>اهتزاز عشوائي صغير في قراءات الزمن والموضع، فتختلف القياسات المكرّرة.</small></label><input type="checkbox" id="nz"></div>
+    </div>
+
+    <div id="setupStatus" class="status"></div>
+    <div class="row" style="margin-top:10px"><button class="btn pri" data-act="toA">ابدأ الخطوة ٣</button></div>
+  </section>
+
+  <!-- التجربتان ٣ و ٤ -->
+  <section class="card panel" id="p-exp" hidden>
+    <div class="sec">
+      <h2 id="eTitle"></h2>
+      <p id="eDesc" class="small"></p>
+      <div class="vars" id="eVars"></div>
+      <details><summary id="eWhySum">لماذا نضبط المتغيّر الثابت؟</summary><p id="eWhy" class="note"></p></details>
+    </div>
+
+    <div class="sec">
+      <div id="ctl"></div>
+      <div class="row" style="margin-top:12px">
+        <button class="btn go" data-act="run" id="runBtn">حرّر العربة</button>
+        <button class="btn" data-act="rewind" id="rewBtn">أعد العربة</button>
+        <div class="seg" hidden role="group" aria-label="سرعة العرض">
+          
+          
+          <button data-speed="0.25" aria-pressed="true">0.25×</button>
+        </div>
+      </div>
+      <p id="msg" role="status" aria-live="polite"></p>
+      <div id="res" class="res empty">لم تُجرِ أي محاولة بعد. اضغط «حرّر العربة».</div>
+      <div class="row" style="margin-top:10px"><button class="btn pri" data-act="rec" id="recBtn" disabled>سجّل القياس في الجدول</button></div>
+    </div>
+
+    <div class="sec">
+      <h3>جدول البيانات <span class="muted small" id="cnt"></span></h3>
+      <div class="tw" id="tbl"></div>
+      <div class="row" style="margin-top:8px"><button class="btn" data-act="clear" id="clrBtn">امسح الجدول</button></div>
+    </div>
+
+    <div class="sec">
+      <h3>الرسم البياني</h3>
+      <div class="row" style="margin-bottom:8px">
+        <div class="seg" id="gtabs" style="display:none" role="group" aria-label="نوع الرسم"></div>
+        <div class="sw" hidden style="padding:0;gap:8px"><label for="th" class="small" style="flex:none">أظهر النموذج النظري</label><input type="checkbox" id="th"></div>
+      </div>
+      <div class="gw"><canvas id="graph" role="img" aria-label="رسم بياني لبيانات التجربة"></canvas></div>
+      <div class="fit" id="fit"></div>
+    </div>
+  </section>
+
+  <!-- الخلاصة -->
+  <section class="card panel" id="p-sum" hidden>
+    <div class="sec">
+      <h2>القانون الذي تكشفه بياناتك</h2>
+      <div class="law"><b>a = F / m</b><br><span class="muted small">أو F = m a ، والوحدة: 1 N = 1 kg·m/s²</span></div>
+      <p class="small">في هذا النشاط القوّة المحرّكة هي وزن الأثقال المعلّقة F = m<sub>2</sub>g، والكتلة التي تتسارع هي كتلة العربة مع الأثقال المعلّقة معًا: m = m<sub>1</sub> + m<sub>2</sub>.</p>
+    </div>
+    <div class="sec">
+      <h3>ملخّص بياناتك</h3>
+      <div id="sumData" class="small"></div>
+    </div>
+    <div class="sec">
+      <h3>تحقّق من فهمك</h3>
+      <div id="quiz"></div>
+    </div>
+  </section>
+  <p class="ft">تم إعداده بواسطة <span>ahmed.alabri01@moe.om</span></p>
+</main>
+
+<script>
+(()=>{
+'use strict';
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const G=9.8,U=0.05,CART=0.5,HANG=0.05,NSLOT=10;
+const PPM=560,X0=84,C0=0.10,CARD=0.05,XMAX=0.95;
+const F_A=(HANG+U*2)*G, M_B=CART+HANG+U*NSLOT;
+const S={tab:'setup',exp:'A',n1:0,n2:2,method:'two',fr:false,noise:false,speed:0.25,
+  checks:[false,false,false],running:false,t:0,x:0,run:null,lastTs:null,
+  rows:{A:[],B:[]},gt:{A:'aM',B:'aF'},theory:false,msg:''};
+
+const m1=()=>CART+U*S.n1, m2=()=>HANG+U*S.n2, Fo=()=>m2()*G, Mt=()=>m1()+m2();
+const mu=()=>S.fr?0.03:0;
+const accel=()=>{const net=Fo()-mu()*m1()*G;return net>0?net/Mt():0;};
+const ready=()=>!!S.method&&S.checks.every(Boolean);
+const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const f=(v,n)=>Number(v).toFixed(n);
+const r4=v=>Math.round(v*1e4)/1e4;
+function gauss(){let u=0,v=0;while(!u)u=Math.random();while(!v)v=Math.random();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);}
+function lin(p){const n=p.length;let sx=0,sy=0,sxx=0,sxy=0,syy=0;
+  p.forEach(([x,y])=>{sx+=x;sy+=y;sxx+=x*x;sxy+=x*y;syy+=y*y;});
+  const d=n*sxx-sx*sx, m=(n*sxy-sx*sy)/d, b=(sy-m*sx)/n;
+  const den=Math.sqrt(d*(n*syy-sy*sy))||1, r=(n*sxy-sx*sy)/den;
+  return{m,b,r2:r*r};}
+function niceStep(v){const e=Math.pow(10,Math.floor(Math.log10(v)));for(const k of [1,2,2.5,5,10]){if(v<=k*e+1e-12)return k*e;}return 10*e;}
+
+/* ---------- القياس ---------- */
+function measure(a){
+  const sd=S.noise?0.0006:0, d=CARD, tt=x=>Math.sqrt(2*x/a);
+  if(S.method==='two'){
+    const pass=[0.40,0.80].map(g=>{
+      const xa=g-C0, xb=xa+d;
+      const ta=r4(tt(xa)+sd*gauss()), tb=r4(tt(xb)+sd*gauss());
+      return{ta,tb,dt:r4(tb-ta),mid:(ta+tb)/2};});
+    const v1=d/pass[0].dt, v2=d/pass[1].dt, Dt=pass[1].mid-pass[0].mid;
+    return{type:'two',pass,v1,v2,Dt,a:(v2-v1)/Dt};
+  }
+  if(S.method==='one'){
+    const g=0.575, xa=g-C0, xb=xa+d;
+    const ta=r4(tt(xa)+sd*gauss()), tb=r4(tt(xb)+sd*gauss());
+    const dt=r4(tb-ta), v=d/dt, s=0.5;
+    return{type:'one',dt,v,s,a:v*v/(2*s)};
+  }
+  const dtS=0.02, tEnd=Math.sqrt(2*XMAX/a), n=Math.floor(tEnd/dtS)+1, xs=[];
+  const sig=S.noise?0.002:0.0003;
+  for(let i=0;i<n;i++){const t=i*dtS;xs.push(Math.round((0.5*a*t*t+sig*gauss())*1e4)/1e4);}
+  const pts=[];
+  for(let i=2;i<n-2;i++)pts.push([i*dtS,(xs[i+2]-xs[i-2])/(4*dtS)]);
+  const fit=lin(pts);
+  return{type:'sensor',pts,fit,a:fit.m};
+}
+
+/* ---------- المحاكاة ---------- */
+function resetCart(){S.running=false;S.t=0;S.x=0;S.run=null;S.msg='';}
+function run(){
+  if(S.running)return;
+  if(!ready()){S.tab='setup';renderAll();window.scrollTo({top:0,behavior:'smooth'});return;}
+  const a=accel();
+  if(a<=0){S.msg='القوّة لا تكفي للتغلّب على الاحتكاك، فلا تتحرّك العربة. أضف ثقلًا معلّقًا.';renderAll();return;}
+  S.t=0;S.x=0;S.msg='';S.run={a,meas:null,rec:false};S.running=true;S.lastTs=null;
+  renderAll();requestAnimationFrame(frame);
+}
+function frame(ts){
+  if(!S.running)return;
+  if(S.lastTs==null)S.lastTs=ts;
+  const dt=Math.min((ts-S.lastTs)/1000,0.05)*S.speed;S.lastTs=ts;S.t+=dt;
+  const a=S.run.a, x=0.5*a*S.t*S.t;
+  if(x>=XMAX){S.x=XMAX;S.t=Math.sqrt(2*XMAX/a);S.running=false;S.run.meas=measure(a);S.msg='اصطدمت العربة بالحاجز. أمسك الأثقال وأعد العربة.';}
+  else S.x=x;
+  drawScene();updateLive();
+  if(S.running)requestAnimationFrame(frame);else renderAll();
+}
+function record(){
+  if(!S.run||!S.run.meas||S.run.rec)return;
+  const am=S.run.meas.a, F=Fo(), M=Mt(), at=F/M;
+  S.rows[S.exp].push({n1:S.n1,n2:S.n2,m1:m1(),m2:m2(),F,M,am,at});
+  S.run.rec=true;S.msg='تم تسجيل القياس.';window.dispatchEvent(new CustomEvent('labrec',{detail:{A:S.rows.A.length,B:S.rows.B.length}}));
+  renderAll();
+}
+
+/* ---------- رسم المشهد ---------- */
+function rr(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);
+  ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);
+  ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();}
+function slot(ctx,c,x,y,w,h){rr(ctx,x,y,w,h,2);ctx.fillStyle=c.steel;ctx.fill();ctx.strokeStyle=c.steel2;ctx.lineWidth=1;ctx.stroke();
+  ctx.beginPath();ctx.moveTo(x+w*0.5,y);ctx.lineTo(x+w*0.5,y+h*0.55);ctx.strokeStyle=c.steel2;ctx.stroke();}
+function arrow(ctx,x1,y1,x2,y2,col,w){ctx.strokeStyle=col;ctx.fillStyle=col;ctx.lineWidth=w||3;
+  ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();
+  const ang=Math.atan2(y2-y1,x2-x1),h=9;ctx.beginPath();ctx.moveTo(x2,y2);
+  ctx.lineTo(x2-h*Math.cos(ang-0.45),y2-h*Math.sin(ang-0.45));ctx.lineTo(x2-h*Math.cos(ang+0.45),y2-h*Math.sin(ang+0.45));ctx.closePath();ctx.fill();}
+function label(ctx,t,x,y,col,size,al){ctx.font=`600 ${size||15}px "IBM Plex Sans Arabic","Segoe UI",Tahoma,sans-serif`;ctx.fillStyle=col;ctx.textAlign=al||'center';ctx.direction='rtl';ctx.fillText(t,x,y);}
+
+function drawScene(){
+  const cv=$('#scene'),W=800,H=460,dpr=Math.min(window.devicePixelRatio||1,3);
+  if(cv.width!==W*dpr){cv.width=W*dpr;cv.height=H*dpr;}
+  const ctx=cv.getContext('2d');ctx.setTransform(dpr,0,0,dpr,0,0);
+  const c={};['wall','floor','wood','wood2','alu','alu2','steel','steel2','card','foam','gate','ink','muted','blue','amber','green','red','line'].forEach(k=>c[k]=css('--'+k));
+  ctx.clearRect(0,0,W,H);ctx.fillStyle=c.wall;ctx.fillRect(0,0,W,H);
+  ctx.fillStyle=c.floor;ctx.fillRect(0,440,W,20);
+
+  // table
+  ctx.fillStyle=c.wood2;ctx.fillRect(40,188,16,252);ctx.fillRect(660,188,16,252);ctx.fillRect(56,300,604,8);
+  rr(ctx,20,172,680,16,3);ctx.fillStyle=c.wood;ctx.fill();ctx.strokeStyle=c.wood2;ctx.lineWidth=1.5;ctx.stroke();
+  // ruler
+  ctx.strokeStyle=c.ink;ctx.fillStyle=c.ink;ctx.lineWidth=1;ctx.font='11px sans-serif';ctx.textAlign='center';ctx.direction='ltr';
+  for(let cm=0;cm<=90;cm+=5){const px=140+cm*5.6;ctx.beginPath();ctx.moveTo(px,172);ctx.lineTo(px,cm%10===0?180:177);ctx.stroke();
+    if(cm%20===0)ctx.fillText(String(cm),px,186);}
+
+  // spare masses tray
+  const spare=NSLOT-S.n1-S.n2;
+  rr(ctx,110,404,200,36,4);ctx.fillStyle=c.wood2;ctx.fill();
+  for(let i=0;i<spare;i++){slot(ctx,c,118+i*19,410,15,24);}
+  label(ctx,'أثقال احتياطية ('+spare+')',210,396,c.muted,15);
+
+  // gates (behind cart)
+  const gates=S.method==='two'?[[308,'بوابة ١'],[532,'بوابة ٢']]:S.method==='one'?[[406,'بوابة ضوئية']]:[];
+  const xf=140+S.x*PPM,left=xf-84;
+  gates.forEach(([gx,name])=>{
+    const hit=xf>=gx&&xf-28<=gx;
+    rr(ctx,gx-12,160,24,12,3);ctx.fillStyle=c.gate;ctx.fill();
+    rr(ctx,gx-5,74,10,90,3);ctx.fillStyle=c.gate;ctx.fill();
+    ctx.fillStyle=c.wall;ctx.fillRect(gx-5,98,10,4);
+    ctx.beginPath();ctx.arc(gx,84,4.5,0,7);ctx.fillStyle=hit?c.red:c.green;ctx.fill();
+    label(ctx,name,gx,62,c.muted,15);
+  });
+
+  // motion sensor
+  if(S.method==='sensor'){
+    rr(ctx,14,112,34,42,5);ctx.fillStyle=c.alu;ctx.fill();ctx.strokeStyle=c.alu2;ctx.lineWidth=1.5;ctx.stroke();
+    ctx.beginPath();ctx.arc(31,133,9,0,7);ctx.fillStyle=c.gate;ctx.fill();
+    ctx.lineWidth=2;const ph=S.running?(performance.now()/350)%1:0.3;
+    for(let k=0;k<3;k++){const r=12+((ph+k/3)%1)*34;ctx.strokeStyle=c.blue;ctx.globalAlpha=S.running?1-((ph+k/3)%1):0.35;
+      ctx.beginPath();ctx.arc(48,133,r,-0.7,0.7);ctx.stroke();}
+    ctx.globalAlpha=1;label(ctx,'مستشعر حركة',32,98,c.muted,15);
+  }
+
+  // track + stop block
+  rr(ctx,40,166,652,6,2);ctx.fillStyle=c.alu;ctx.fill();
+  rr(ctx,674,120,16,46,3);ctx.fillStyle=c.foam;ctx.fill();ctx.strokeStyle=c.wood2;ctx.lineWidth=1.5;ctx.stroke();
+  label(ctx,'حاجز',682,112,c.muted,15);
+
+  // pulley + clamp
+  rr(ctx,693,168,16,30,2);ctx.fillStyle=c.alu2;ctx.fill();
+  ctx.strokeStyle=c.alu2;ctx.lineWidth=5;ctx.beginPath();ctx.moveTo(701,170);ctx.lineTo(714,152);ctx.stroke();
+  const rot=S.x*PPM/12;
+  ctx.beginPath();ctx.arc(714,150,12,0,7);ctx.fillStyle=c.alu;ctx.fill();ctx.strokeStyle=c.steel2;ctx.lineWidth=2;ctx.stroke();
+  ctx.lineWidth=2;for(let k=0;k<3;k++){const an=rot+k*Math.PI/3;ctx.beginPath();ctx.moveTo(714-9*Math.cos(an),150-9*Math.sin(an));ctx.lineTo(714+9*Math.cos(an),150+9*Math.sin(an));ctx.stroke();}
+  ctx.beginPath();ctx.arc(714,150,2.5,0,7);ctx.fillStyle=c.steel2;ctx.fill();
+
+  // hanging masses
+  const hy=200+S.x*125, hx=726, n2=S.n2;
+  rr(ctx,hx-35,430,70,10,3);ctx.fillStyle=c.foam;ctx.fill();ctx.strokeStyle=c.wood2;ctx.lineWidth=1;ctx.stroke();
+  // string
+  ctx.strokeStyle=c.ink;ctx.lineWidth=1.6;ctx.beginPath();ctx.moveTo(xf,138);ctx.lineTo(714,138);
+  ctx.arc(714,150,12,-Math.PI/2,0);ctx.lineTo(hx,hy);ctx.stroke();
+  ctx.beginPath();ctx.arc(hx,hy+3,3,0,7);ctx.strokeStyle=c.ink;ctx.stroke();
+  rr(ctx,hx-17,hy+8,34,7,2);ctx.fillStyle=c.amber;ctx.fill();
+  for(let i=0;i<n2;i++)slot(ctx,c,hx-15,hy+16+i*9,30,8);
+  // force arrow
+  const al=14+Fo()*8, ay=hy+10;
+  arrow(ctx,hx+30,ay,hx+30,ay+al,c.amber,3);
+  label(ctx,'F',hx+44,ay+al/2+5,c.amber,17);
+
+  // cart
+  [left+16,left+68].forEach(wx=>{ctx.beginPath();ctx.arc(wx,158,8,0,7);ctx.fillStyle=c.gate;ctx.fill();
+    ctx.beginPath();ctx.arc(wx,158,3,0,7);ctx.fillStyle=c.alu;ctx.fill();});
+  rr(ctx,left,120,84,32,5);ctx.fillStyle=c.blue;ctx.fill();ctx.strokeStyle=c.gate;ctx.lineWidth=1.5;ctx.stroke();
+  ctx.fillStyle=c.ink;ctx.beginPath();ctx.arc(xf-4,138,3,0,7);ctx.fill();
+  for(let i=0;i<S.n1;i++)slot(ctx,c,left+8,113-i*7,44,7);
+  // card (flag)
+  ctx.fillStyle=c.card;ctx.fillRect(xf-28,78,28,42);ctx.strokeStyle=c.gate;ctx.lineWidth=1.5;ctx.strokeRect(xf-28,78,28,42);
+  ctx.fillStyle=c.gate;ctx.fillRect(xf-28,78,28,5);
+
+  // acceleration arrow
+  if(S.running&&S.run){const L=14+S.run.a*18;arrow(ctx,left+6,36,left+6+L,36,c.green,3);label(ctx,'a',left+6+L/2,28,c.green,17);}
+}
+
+/* ---------- عرض الواجهة ---------- */
+function updateLive(){
+  const a=S.run?S.run.a:0, v=S.running?a*S.t:0;
+  $('#lt').textContent=f(S.t,3);$('#lx').textContent=f(S.x,3);$('#lv').textContent=f(v,3);
+}
+function renderQuad(){
+  $('#q1').textContent=f(m1(),2);$('#q2').textContent=f(m2(),2);$('#q3').textContent=f(Fo(),2);$('#q4').textContent=f(Mt(),2);
+  const fl=[];
+  if(S.fr)fl.push('<span class="flag on">احتكاك المسار مفعّل</span>');
+  if(S.noise)fl.push('<span class="flag on">ضوضاء القياس مفعّلة</span>');
+  if(S.method)fl.push('<span class="flag">القياس: '+({two:'بوابتان',one:'بوابة واحدة',sensor:'مستشعر حركة'})[S.method]+'</span>');
+  $('#flags').innerHTML=fl.join('');
+}
+function missing(){const m=[];if(!S.method)m.push('اختر طريقة القياس');if(!S.checks.every(Boolean))m.push('أكّد إجراءات السلامة الثلاثة');return m;}
+function renderSetup(){
+  const m=missing(),el=$('#setupStatus');
+  if(!m.length){el.className='status ok';el.textContent='التجهيز مكتمل. يمكنك تحرير العربة.';}
+  else{el.className='status no';el.textContent='ينقصك: '+m.join(' + ');}
+}
+const EXPT={
+  A:{title:'الخطوة ٣: كيف يعتمد التسارع على كتلة العربة؟',
+     desc:'أبقِ القوّة ثابتة بتثبيت الثقل المعلّق (الخطّاف + ثقلان = 0.15 kg، أي F = 1.47 N). ثم زد كتلة العربة بوضع أثقال فوقها وقِس التسارع في كل مرة.',
+     vars:[['المتغيّر المستقل','الكتلة المتسارعة m₁ + m₂ (بتغيير الأثقال فوق العربة)'],['المتغيّر التابع','التسارع a'],['المتغيّر الثابت','القوّة F = m₂g']],
+     why:'لو تغيّرت القوّة مع الكتلة لما عرفنا أيّهما سبّب تغيّر التسارع. نغيّر متغيّرًا واحدًا فقط ونثبّت الباقي.'},
+  B:{title:'الخطوة ٤: كيف يعتمد التسارع على القوّة؟',
+     desc:'ابدأ بثقل واحد معلّق (فوق الخطّاف) وتسعة أثقال على العربة. ثم انقل ثقلًا واحدًا في كل مرة من العربة إلى نهاية الخيط. الكتلة الكلية تبقى 1.05 kg.',
+     vars:[['المتغيّر المستقل','القوّة F = m₂g (بتغيير عدد الأثقال المعلّقة)'],['المتغيّر التابع','التسارع a'],['المتغيّر الثابت','الكتلة المتسارعة m₁ + m₂ = 1.05 kg']],
+     why:'نقل الثقل من العربة إلى الخيط يزيد القوّة دون تغيير مجموع الكتل. لو أضفنا أثقالًا جديدة إلى الخيط لتغيّرت القوّة والكتلة معًا.'}
+};
+function renderControls(){
+  const dis=S.running?'disabled':'';
+  if(S.exp==='A'){
+    $('#ctl').innerHTML=`<div class="stepper"><span>أثقال إضافية فوق العربة</span>
+      <button data-act="dec" aria-label="أنقص ثقلًا" ${dis||(S.n1<=0?'disabled':'')}>−</button><output>${S.n1}</output>
+      <button data-act="inc" aria-label="أضف ثقلًا" ${dis||(S.n1>=8?'disabled':'')}>+</button></div>
+      <p class="note">الثقل المعلّق ثابت: الخطّاف + ثقلان (0.15 kg).</p>`;
+  }else{
+    $('#ctl').innerHTML=`<div class="stepper"><span>أثقال معلّقة بالخيط</span>
+      <button data-act="dec" aria-label="انقل ثقلًا إلى العربة" ${dis||(S.n2<=1?'disabled':'')}>−</button><output>${S.n2}</output>
+      <button data-act="inc" aria-label="انقل ثقلًا إلى الخيط" ${dis||(S.n2>=9?'disabled':'')}>+</button></div>
+      <p class="note">على العربة الآن: ${S.n1} أثقال. (+) ينقل ثقلًا من العربة إلى الخيط.</p>`;
+  }
+}
+function renderExpHead(){
+  const e=EXPT[S.exp];
+  $('#eTitle').textContent=e.title;$('#eDesc').textContent=e.desc;$('#eWhy').textContent=e.why;
+  $('#eVars').innerHTML=e.vars.map(v=>`<div><span>${v[0]}</span><b style="font-weight:500">${v[1]}</b></div>`).join('');
+}
+function renderRes(){
+  const el=$('#res'),r=S.run;
+  if(S.running){el.className='res empty';el.textContent='جارٍ القياس…';return;}
+  if(!r||!r.meas){el.className='res empty';el.textContent='لم تُجرِ أي محاولة بعد. اضغط «حرّر العربة».';return;}
+  const m=r.meas;el.className='res';let h='';
+  if(m.type==='two'){
+    h=`<div class="rg">
+      <div><span>t₁ (بوابة ١)</span><b>${f(m.pass[0].dt,4)} s</b></div>
+      <div><span>v₁ = d / t₁</span><b>${f(m.v1,3)} m/s</b></div>
+      <div><span>t₂ (بوابة ٢)</span><b>${f(m.pass[1].dt,4)} s</b></div>
+      <div><span>v₂ = d / t₂</span><b>${f(m.v2,3)} m/s</b></div>
+      <div><span>Δt بين البوابتين</span><b>${f(m.Dt,4)} s</b></div>
+      <div><span>عرض البطاقة d</span><b>0.050 m</b></div></div>
+      <div class="eqline">a = (${f(m.v2,3)} − ${f(m.v1,3)}) / ${f(m.Dt,3)}</div>`;
+  }else if(m.type==='one'){
+    h=`<div class="rg">
+      <div><span>زمن مرور البطاقة t</span><b>${f(m.dt,4)} s</b></div>
+      <div><span>v = d / t</span><b>${f(m.v,3)} m/s</b></div>
+      <div><span>المسافة s</span><b>${f(m.s,2)} m</b></div>
+      <div><span>عرض البطاقة d</span><b>0.050 m</b></div></div>
+      <div class="eqline">a = v² / 2s = ${f(m.v,3)}² / (2 × ${f(m.s,2)})</div>`;
+  }else{
+    h=`<canvas id="vt"></canvas><div class="eqline">a = ميل الخط الأمثل لمنحنى v–t (${m.pts.length} نقطة)</div>`;
+  }
+  h+=`<div class="big"><b>${f(m.a,2)}</b> <span>m/s²</span><br><span class="small">التسارع المقاس</span></div>`;
+  el.innerHTML=h;
+  if(m.type==='sensor')requestAnimationFrame(()=>drawPlot($('#vt'),{pts:m.pts,xl:'الزمن t (s)',yl:'السرعة v (m/s)',x0:1,y0:2,fit:true,ratio:0.5,color:css('--blue'),dot:2.5}));
+}
+function renderRunUI(){
+  $('#msg').textContent=S.msg;
+  const ok=ready();
+  $('#runBtn').disabled=S.running;
+  $('#rewBtn').disabled=S.running||(S.x===0&&!S.run);
+  $('#recBtn').disabled=!(S.run&&S.run.meas&&!S.run.rec);
+  $('#clrBtn').disabled=!S.rows[S.exp].length;
+  if(!ok&&!S.msg){$('#msg').textContent='أكمل التجهيز (الخطوتان ١ و٢) لتفعيل التحرير.';}
+  $$('[data-speed]').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.speed===S.speed)));
+}
+function renderTable(){
+  const rows=S.rows[S.exp].map((r,i)=>({...r,i})).sort((a,b)=>S.exp==='A'?a.M-b.M:a.F-b.F);
+  const n=rows.length;$('#cnt').textContent=n?`(${n} قياسات، يُنصح بخمسة على الأقل)`:'';
+  if(!n){$('#tbl').innerHTML='<div class="empty-t">لا توجد قياسات بعد. حرّر العربة ثم اضغط «سجّل القياس».</div>';return;}
+  $('#tbl').innerHTML=`<table><thead><tr><th>${S.exp==='A'?'الكتلة (kg)':'القوّة (N)'}</th><th>التسارع (m/s²)</th><th></th></tr></thead><tbody>`+
+    rows.map(r=>{const d=(r.am-r.at)/r.at*100;
+      return `<tr><td>${S.exp==='A'?f(r.M,2):f(r.F,2)}</td><td><b>${f(r.am,2)}</b></td><td><button data-del="${r.i}" aria-label="احذف القياس">✕</button></td></tr>`;}).join('')+'</tbody></table>';
+}
+function graphSpec(){
+  const rows=S.rows[S.exp];
+  if(S.exp==='A'){
+    return{join:true,xl:'الكتلة المتسارعة M (kg)',yl:'التسارع a (m/s²)',pts:rows.map(r=>[r.M,r.am]),x0:1.2,y0:2.5,th:x=>F_A/x,fit:false,kind:'aM'};
+    return{xl:'الكتلة المتسارعة M (kg)',yl:'مقلوب التسارع 1/a (s²/m)',pts:rows.map(r=>[r.M,1/r.am]),x0:1.2,y0:1,th:x=>x/F_A,fit:true,kind:'invM'};
+  }
+  return{xl:'القوّة F = m₂g (N)',yl:'التسارع a (m/s²)',pts:rows.map(r=>[r.F,r.am]),x0:5,y0:5,th:x=>x/M_B,fit:true,kind:'aF'};
+}
+function renderGraphTabs(){
+  const g=$('#gtabs');
+  if(S.exp==='A'){
+    g.hidden=false;
+    g.innerHTML=`<button data-gt="aM" aria-pressed="${S.gt.A==='aM'}">a مقابل M</button><button data-gt="invM" aria-pressed="${S.gt.A==='invM'}">1/a مقابل M</button>`;
+  }else{g.hidden=true;g.innerHTML='';}
+}
+function renderGraph(){
+  const cv=$('#graph');if(!cv||!cv.offsetParent)return;
+  const sp=graphSpec();
+  drawPlot(cv,{pts:sp.pts,xl:sp.xl,yl:sp.yl,x0:sp.x0,y0:sp.y0,fit:sp.fit,join:sp.join,theory:S.theory?sp.th:null,ratio:0.78});
+  const el=$('#fit'),n=sp.pts.length;
+  if(!n){el.textContent=S.exp==='A'?'جرّب وسجّل: أضف أثقالًا فوق العربة في كل محاولة وسجّل القياس 3 مرات على الأقل لتظهر لك العلاقة بين الكتلة والتسارع.':'سجّل قياساتك لتظهر النقاط على الرسم.';return;}
+  if(sp.kind==='aM'){if(n<3){el.textContent='سجّلت '+n+' من 3 قياسات. أضف أثقالًا فوق العربة وكرّر التجربة ثم سجّل القياس حتى تظهر لك العلاقة بين الكتلة والتسارع.';return;}el.innerHTML='<b>العلاقة بين الكتلة والتسارع علاقة عكسية:</b> كلما زادت كتلة العربة قلّ التسارع.';return;}
+  if(n<3){el.textContent='سجّلت '+n+' من 3 قياسات. غيّر عدد الأثقال المعلّقة وكرّر التجربة ثم سجّل القياس حتى تظهر لك العلاقة بين القوّة والتسارع.';return;}if(sp.kind==='aF'){el.innerHTML='<b>العلاقة بين القوّة والتسارع علاقة طردية:</b> كلما زادت القوّة زاد التسارع.';return;}
+  const L=lin(sp.pts);let h='';
+  if(sp.kind==='invM'){
+    const Fe=1/L.m,d=(Fe-F_A)/F_A*100;
+    h=`ميل الخط = <b>${f(L.m,3)}</b>. مقلوب الميل يمثّل القوّة: <b>${f(Fe,2)} N</b>، بينما F = m₂g = <b>${f(F_A,2)} N</b> (فرق ${f(Math.abs(d),1)}%).<br>التقاطع مع المحور الرأسي = ${f(L.b,3)}.`;
+    if(Math.abs(L.b)>0.04)h+=' الخط لا يمرّ بنقطة الأصل. فكّر في الاحتكاك أو أخطاء القياس.';
+  }else{
+    const Me=1/L.m,d=(Me-M_B)/M_B*100;
+    h=`ميل الخط = <b>${f(L.m,3)}</b>. مقلوب الميل يمثّل الكتلة المتسارعة: <b>${f(Me,2)} kg</b>، بينما الكتلة الكلية = <b>${f(M_B,2)} kg</b> (فرق ${f(Math.abs(d),1)}%).<br>التقاطع مع المحور الرأسي = ${f(L.b,3)} m/s².`;
+    if(L.b<-0.1)h+=' التقاطع سالب: توجد قوّة مقاومة (احتكاك) تعاكس الحركة، فلا بدّ من قوّة أولى للتغلّب عليها.';
+  }
+  el.innerHTML=h+`<br><span class="muted small">معامل التحديد R² = ${f(L.r2,3)}</span>`;
+}
+function drawPlot(cv,o){
+  if(!cv||!cv.offsetParent)return;
+  const dpr=Math.min(window.devicePixelRatio||1,3),w=cv.clientWidth,h=Math.round(w*(o.ratio||0.72));
+  cv.width=w*dpr;cv.height=h*dpr;cv.style.height=h+'px';
+  const ctx=cv.getContext('2d');ctx.setTransform(dpr,0,0,dpr,0,0);
+  const ink=css('--ink'),mut=css('--muted'),line=css('--line'),sur=css('--surface'),acc=o.color||css('--green'),bl=css('--blue');
+  const L=50,R=14,T=14,B=48,pw=w-L-R,ph=h-T-B;
+  let xm=o.x0,ym=o.y0;o.pts.forEach(p=>{xm=Math.max(xm,p[0]*1.08);ym=Math.max(ym,p[1]*1.1);});
+  const sx=niceStep(xm/5),sy=niceStep(ym/5);xm=Math.ceil(xm/sx-1e-9)*sx;ym=Math.ceil(ym/sy-1e-9)*sy;
+  const X=v=>L+v/xm*pw,Y=v=>T+ph-v/ym*ph;
+  const dec=s=>s>=1?0:Math.min(3,Math.ceil(-Math.log10(s)+1e-9));
+  ctx.font='11.5px "IBM Plex Sans Arabic",sans-serif';ctx.direction='ltr';
+  ctx.lineWidth=1;
+  for(let v=0;v<=xm+1e-9;v+=sx){ctx.strokeStyle=line;ctx.beginPath();ctx.moveTo(X(v),T);ctx.lineTo(X(v),T+ph);ctx.stroke();
+    ctx.fillStyle=mut;ctx.textAlign='center';ctx.fillText(v.toFixed(dec(sx)),X(v),T+ph+15);}
+  for(let v=0;v<=ym+1e-9;v+=sy){ctx.strokeStyle=line;ctx.beginPath();ctx.moveTo(L,Y(v));ctx.lineTo(L+pw,Y(v));ctx.stroke();
+    ctx.fillStyle=mut;ctx.textAlign='right';ctx.fillText(v.toFixed(dec(sy)),L-6,Y(v)+4);}
+  ctx.strokeStyle=ink;ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(L,T);ctx.lineTo(L,T+ph);ctx.lineTo(L+pw,T+ph);ctx.stroke();
+  ctx.fillStyle=ink;ctx.font='600 12.5px "IBM Plex Sans Arabic",sans-serif';ctx.direction='rtl';ctx.textAlign='center';
+  ctx.fillText(o.xl,L+pw/2,h-8);
+  ctx.save();ctx.translate(13,T+ph/2);ctx.rotate(-Math.PI/2);ctx.fillText(o.yl,0,0);ctx.restore();
+  ctx.save();ctx.beginPath();ctx.rect(L,T,pw,ph);ctx.clip();
+  if(o.theory){ctx.setLineDash([6,5]);ctx.strokeStyle=mut;ctx.lineWidth=2;ctx.beginPath();
+    for(let i=0;i<=80;i++){const x=xm*(0.04+0.96*i/80),y=o.theory(x);i?ctx.lineTo(X(x),Y(y)):ctx.moveTo(X(x),Y(y));}
+    ctx.stroke();ctx.setLineDash([]);}
+  if(o.fit&&o.pts.length>=3){const fl=lin(o.pts);ctx.strokeStyle=bl;ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(X(0),Y(fl.b));ctx.lineTo(X(xm),Y(fl.m*xm+fl.b));ctx.stroke();}
+  if(o.join&&o.pts.length>=3){const fl2=lin(o.pts),xs2=o.pts.map(p=>p[0]),a0=Math.min(...xs2)-0.25,a1=Math.max(...xs2)+0.25;ctx.strokeStyle=acc;ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(X(a0),Y(fl2.m*a0+fl2.b));ctx.lineTo(X(a1),Y(fl2.m*a1+fl2.b));ctx.stroke();}
+  o.pts.forEach(p=>{ctx.beginPath();ctx.arc(X(p[0]),Y(p[1]),o.dot||5.5,0,7);ctx.fillStyle=acc;ctx.fill();ctx.strokeStyle=sur;ctx.lineWidth=1.5;ctx.stroke();});
+  ctx.restore();
+}
+function renderSum(){
+  const parts=[['A','التجربة ٣ (غيّر الكتلة)'],['B','التجربة ٤ (غيّر القوّة)']].map(([k,name])=>{
+    const rows=S.rows[k];if(!rows.length)return `<p><b>${name}:</b> <span class="muted">لم تسجّل قياسات بعد.</span></p>`;
+    if(rows.length<3)return `<p><b>${name}:</b> ${rows.length} قياسات. سجّل ثلاثة على الأقل للتحليل.</p>`;
+    if(k==='A'){return `<p><b>${name}:</b> ${rows.length} قياسات. كلما زادت كتلة العربة قلّ التسارع (علاقة عكسية).</p>`;}
+    const L=lin(rows.map(r=>[r.F,r.am]));return `<p><b>${name}:</b> ${rows.length} قياسات. من رسم a مقابل F: الكتلة المستنتجة ${f(1/L.m,2)} kg، والكتلة الفعلية ${f(M_B,2)} kg.</p>`;});
+  $('#sumData').innerHTML=parts.join('');
+}
+const QUIZ=[
+ {q:'عندما تبقى القوّة ثابتة وتتضاعف الكتلة المتسارعة، يصبح التسارع:',o:['ضعف ما كان','نصف ما كان','لا يتغيّر'],a:1,e:'a = F/m: مضاعفة الكتلة مع ثبات F تُنصّف التسارع. العلاقة عكسية.'},
+ {q:'عندما تبقى الكتلة الكلية ثابتة وتتضاعف القوّة، يصبح التسارع:',o:['ضعف ما كان','نصف ما كان','لا يتغيّر'],a:0,e:'التسارع يتناسب طرديًا مع القوّة عند ثبات الكتلة، فيظهر خط مستقيم يمرّ بنقطة الأصل.'},
+ {q:'لماذا نحسب الكتلة المتسارعة m₁ + m₂ وليس m₁ وحدها؟',o:['لأن الأثقال المعلّقة تتحرّك أيضًا بالتسارع نفسه','لأن العربة لا تتسارع بمفردها','لأن الخيط يضيف كتلة كبيرة'],a:0,e:'الخيط مشدود، فتتحرّك العربة والأثقال المعلّقة معًا بالتسارع نفسه، فكلتاهما تُسهمان في القصور.'},
+ {q:'لماذا ننقل الأثقال من العربة إلى الخيط بدل إضافة أثقال جديدة إلى الخيط؟',o:['كي يزداد الاحتكاك','كي تتغيّر القوّة فقط وتبقى الكتلة الكلية ثابتة','لأن الأثقال المعلّقة لا وزن لها'],a:1,e:'ضبط المتغيّرات: نغيّر القوّة وحدها ونثبّت الكتلة المتسارعة.'},
+ {q:'ظهر التقاطع سالبًا في رسم a مقابل F مع تفعيل الاحتكاك. ما التفسير؟',o:['خطأ في البكرة فقط','قوّة مقاومة تعاكس الحركة وتستهلك جزءًا من F','الكتلة الكلية تتناقص'],a:1,e:'القوّة المحصّلة = F − قوّة الاحتكاك، فلا يبدأ التسارع إلا بعد تجاوز قوّة الاحتكاك.'}
+];
+function renderQuiz(){
+  $('#quiz').innerHTML=QUIZ.map((x,i)=>`<div class="q"><p>${x.q}</p>${x.o.map((t,j)=>`<button class="opt" data-q="${i}" data-o="${j}">${t}</button>`).join('')}<p class="fb" id="fb${i}" hidden></p></div>`).join('');
+}
+
+function renderAll(){
+  renderQuad();renderSetup();
+  if(S.tab==='A'||S.tab==='B'){renderExpHead();renderControls();renderRes();renderRunUI();renderTable();renderGraphTabs();$('#th').checked=S.theory;}
+  if(S.tab==='sum')renderSum();
+  $('#stk').classList.toggle('free',!(S.tab==='A'||S.tab==='B'));
+  $$('.tab').forEach(b=>{b.setAttribute('aria-selected',String(b.dataset.tab===S.tab));});
+  $('#p-setup').hidden=S.tab!=='setup';$('#p-exp').hidden=!(S.tab==='A'||S.tab==='B');$('#p-sum').hidden=S.tab!=='sum';
+  drawScene();updateLive();
+  if(S.tab==='A'||S.tab==='B')renderGraph();
+}
+function setTab(t){
+  if(S.running)return;
+  S.tab=t;
+  if((t==='A'||t==='B')&&S.exp!==t){S.exp=t;if(t==='A'){S.n1=0;S.n2=2;}else{S.n1=9;S.n2=1;}resetCart();}
+  if(t==='A'&&S.rows.A.length===0&&S.n2!==2){S.n1=0;S.n2=2;}
+  renderAll();
+}
+function step(dir){
+  if(S.running)return;
+  if(S.exp==='A')S.n1=Math.max(0,Math.min(8,S.n1+dir));
+  else{S.n2=Math.max(1,Math.min(9,S.n2+dir));S.n1=NSLOT-S.n2;}
+  resetCart();renderAll();
+}
+
+/* ---------- الأحداث ---------- */
+document.addEventListener('click',e=>{
+  const t=e.target.closest('button');if(!t)return;
+  if(t.dataset.tab){setTab(t.dataset.tab);return;}
+  if(t.dataset.speed){S.speed=+t.dataset.speed;renderRunUI();return;}
+  if(t.dataset.gt){S.gt[S.exp]=t.dataset.gt;renderGraphTabs();renderGraph();return;}
+  if(t.dataset.del!==undefined){S.rows[S.exp].splice(+t.dataset.del,1);renderAll();return;}
+  if(t.dataset.q!==undefined&&t.classList.contains('opt')){
+    const i=+t.dataset.q,j=+t.dataset.o,x=QUIZ[i];
+    $$(`.opt[data-q="${i}"]`).forEach(b=>b.classList.remove('ok','bad'));
+    t.classList.add(j===x.a?'ok':'bad');
+    if(j!==x.a)$(`.opt[data-q="${i}"][data-o="${x.a}"]`).classList.add('ok');
+    const fb=$('#fb'+i);fb.hidden=false;fb.textContent=(j===x.a?'إجابة صحيحة. ':'الإجابة الصحيحة موضّحة. ')+x.e;return;}
+  switch(t.dataset.act){
+    case 'run':run();break;
+    case 'rewind':if(!S.running){resetCart();renderAll();}break;
+    case 'rec':record();break;
+    case 'inc':step(1);break;
+    case 'dec':step(-1);break;
+    case 'clear':S.rows[S.exp]=[];renderAll();break;
+    case 'toA':setTab('A');window.scrollTo({top:0,behavior:'smooth'});break;
+  }
+});
+$$('input[name="method"]').forEach(r=>r.addEventListener('change',()=>{S.method=r.value;resetCart();renderAll();}));
+$$('[data-chk]').forEach(c=>c.addEventListener('change',()=>{S.checks[+c.dataset.chk]=c.checked;renderAll();}));
+$('#fr').addEventListener('change',e=>{S.fr=e.target.checked;resetCart();renderAll();});
+$('#nz').addEventListener('change',e=>{S.noise=e.target.checked;renderAll();});
+$('#th').addEventListener('change',e=>{S.theory=e.target.checked;renderGraph();});
+let rz;window.addEventListener('resize',()=>{clearTimeout(rz);rz=setTimeout(()=>{if(S.tab==='A'||S.tab==='B'){renderGraph();if(S.run&&S.run.meas&&S.run.meas.type==='sensor')renderRes();}},120);});
+const mq=window.matchMedia('(prefers-color-scheme: dark)');
+(mq.addEventListener?mq.addEventListener.bind(mq,'change'):mq.addListener.bind(mq))(()=>renderAll());
+
+renderQuiz();renderAll();
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>renderAll());
+})();
+</script>
+</body>
+</html>
